@@ -30,7 +30,7 @@ func main() {
 }
 
 func match(filename string) string {
-	re := regexp.MustCompile(`(.*?.dat)-(UDP-\d{5}).*@(.*)`)
+	re := regexp.MustCompile(`(.*?.dat)-(UDP-\d{6}).*@(.*)`)
 	pieces := re.FindAllStringSubmatch(filename, -1)
 	if pieces == nil || len(pieces) == 0 {
 		return ""
