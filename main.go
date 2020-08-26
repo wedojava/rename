@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -22,16 +23,17 @@ func main() {
 		if strings.HasSuffix(f.Name(), ".exe") {
 			continue
 		}
-		os.Rename(filepath.Join(*dir, f.Name()),
-			filepath.Join(*dir, match(f.Name())))
+		if newname := match(f.Name()); newname != "" {
+			os.Rename(filepath.Join(*dir, f.Name()), filepath.Join(*dir, newname))
+		}
 	}
 }
 
 func match(filename string) string {
-	pieces := strings.Split(filename, "-UDP-")
-	prefix := pieces[0]
-	secondPiece := strings.Join(pieces[1:], "")
-	atPieces := strings.Split(secondPiece, "@")
-	subfix := atPieces[len(atPieces)-1]
-	return fmt.Sprintf("[%s]UDP@%s", prefix, subfix)
+	re := regexp.MustCompile(`(.*?.dat)-(UDP-\d{5}).*@(.*)`)
+	pieces := re.FindAllStringSubmatch(filename, -1)
+	if pieces == nil || len(pieces) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("[%s][%s]@%s", pieces[0][1], pieces[0][2], pieces[0][3])
 }
